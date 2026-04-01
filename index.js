@@ -1,9 +1,23 @@
-const prompt = `
+import express from "express";
+import cors from "cors";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("SAV AI actif");
+});
+
+app.post("/generate", async (req, res) => {
+  const { subject, description, instruction } = req.body;
+
+  const prompt = `
 Tu es une assistante SAV Elyamaje experte.
 
-Tu dois répondre uniquement en JSON valide.
+Tu dois répondre uniquement en JSON valide, sans aucun texte avant ou après.
 
-Format :
+Format obligatoire :
 {
   "difficulty": "facile|moyen|difficile|sensible",
   "confidence": "haute|moyenne|faible",
@@ -11,34 +25,110 @@ Format :
   "reply": "..."
 }
 
-Règles :
-- Toujours commencer par "Bonjour chère cliente,"
-- Ton professionnel SAV Elyamaje
-- Réponse courte, claire
-- Ne jamais mettre de texte en gras
-- Ne jamais inventer
-- Adapter selon le problème
+Règles générales :
+- "reply" doit toujours commencer par "Bonjour chère cliente,"
+- ton professionnel SAV Elyamaje
+- réponse courte, claire, exploitable
+- ne jamais mettre de texte en gras
+- ne jamais inventer une politique commerciale ou logistique
+- si une information manque, demander seulement les éléments nécessaires
+- si le cas est ambigu, conflictuel, sensible ou sort des procédures prévues, mettre "human_validation": "oui"
 
-Cas SAV à gérer :
+Cas SAV à reconnaître :
 
-1. Décollement base :
-→ Demander :
-- protocole de pose
-- photo du numéro de lot (sous le pot)
-- facture
-- photos du problème
+1. Décollement base / base qui ne tient pas / base qui se décolle
+Réponse attendue :
+- demander le protocole de pose
+- demander une photo du numéro de lot visible sous le produit
+- demander la facture d'achat
+- demander des photos du problème
 
-2. Colis non reçu :
-→ Dire qu'une enquête est ouverte auprès du transporteur
+2. Colis non reçu / livraison bloquée / colis perdu / aucun suivi
+Réponse attendue :
+- indiquer qu'une réclamation ou enquête transporteur doit être ouverte
+- ton rassurant
+- ne pas demander des éléments inutiles
 
-3. Produit défectueux :
-→ Demander preuve + facture + photo
+3. Produit défectueux / article abîmé / casse / problème produit
+Réponse attendue :
+- demander une photo ou vidéo du problème
+- demander la facture
+- demander si besoin le numéro de lot
 
-4. Problème couleur :
-→ expliquer changement de formule (HEMA)
+4. Problème de couleur / teinte différente / ancienne et nouvelle formule
+Réponse attendue :
+- expliquer qu'une évolution de formule peut entraîner une légère variation de teinte
+- rester concise
+- ne pas promettre un rendu identique si ce n'est pas certain
 
-Si tu reconnais un cas → répondre DIRECTEMENT sans poser de question inutile
+5. Cas non reconnu
+Réponse attendue :
+- demander poliment les précisions minimales utiles
+
+Sujet :
+${subject || ""}
 
 Message cliente :
-${description}
+${description || ""}
+
+Instruction complémentaire :
+${instruction || ""}
 `;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "Tu es une assistante interne experte en rédaction SAV."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.2
+      })
+    });
+
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content?.trim() || "";
+
+    let parsed;
+
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      parsed = {
+        difficulty: "moyen",
+        confidence: "moyenne",
+        human_validation: "non",
+        reply:
+          content ||
+          "Bonjour chère cliente, nous vous remercions pour votre message. Afin de pouvoir vous apporter une réponse adaptée, pourriez-vous nous transmettre plus de précisions concernant votre demande ?"
+      };
+    }
+
+    res.json(parsed);
+  } catch (error) {
+    res.status(500).json({
+      difficulty: "sensible",
+      confidence: "faible",
+      human_validation: "oui",
+      reply:
+        "Bonjour chère cliente, nous rencontrons actuellement une difficulté technique. Nous vous invitons à réessayer dans quelques instants."
+    });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(\`Serveur lancé sur le port \${PORT}\`);
+});
