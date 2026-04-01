@@ -101,3 +101,6 @@ ${description}
 });
 
 app.listen(3000, () => console.log("Serveur lancé"));
+app.get("/", (req, res) => {
+  res.send("SAV AI actif");
+});
