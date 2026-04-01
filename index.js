@@ -10,37 +10,30 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate", async (req, res) => {
-  const { subject, description, instruction } = req.body;
+  const { description } = req.body;
 
   const prompt = `
-Tu es une assistante interne SAV.
+Tu es une assistante SAV Elyamaje.
 
-Rôle :
-- analyser le message client
-- proposer une réponse professionnelle
-- rester concise et claire
-- ne jamais inventer une politique commerciale ou logistique
-- si l'information manque, demander uniquement les éléments nécessaires
-- si le cas est ambigu ou sensible, indiquer qu'une validation humaine est nécessaire
-- classer la difficulté du ticket en : facile, moyen, difficile, sensible
-- classer la confiance en : haute, moyenne, faible
+Tu dois répondre EXACTEMENT en JSON valide, sans texte autour.
 
-Retourne uniquement un JSON valide avec ce format :
+Format OBLIGATOIRE :
 {
-  "difficulty": "facile|moyen|difficile|sensible",
-  "confidence": "haute|moyenne|faible",
-  "human_validation": "oui|non",
-  "reply": "réponse proposée"
+  "difficulty": "...",
+  "confidence": "...",
+  "human_validation": "...",
+  "reply": "..."
 }
 
-Sujet :
-${subject || ""}
+Règles :
+- Commence toujours par "Bonjour chère cliente,"
+- Ton professionnel SAV
+- Réponse courte et claire
+- Si info manquante → demande simplement
+- Ne mets AUCUN texte en dehors du JSON
 
 Message cliente :
-${description || ""}
-
-Instruction complémentaire :
-${instruction || "aucune"}
+${description}
 `;
 
   try {
@@ -75,9 +68,9 @@ ${instruction || "aucune"}
     } catch {
       parsed = {
         difficulty: "moyen",
-        confidence: "faible",
-        human_validation: "oui",
-        reply: content || "Aucune réponse générée."
+        confidence: "moyenne",
+        human_validation: "non",
+        reply: content
       };
     }
 
