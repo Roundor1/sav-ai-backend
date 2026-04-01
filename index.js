@@ -10,30 +10,38 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate", async (req, res) => {
-  const { description } = req.body;
+  const { subject, description, instruction } = req.body;
 
   const prompt = `
 Tu es une assistante SAV Elyamaje.
 
-Tu dois répondre EXACTEMENT en JSON valide, sans texte autour.
+Tu dois répondre uniquement en JSON valide, sans aucun texte avant ou après.
 
-Format OBLIGATOIRE :
+Format obligatoire :
 {
-  "difficulty": "...",
-  "confidence": "...",
-  "human_validation": "...",
+  "difficulty": "facile|moyen|difficile|sensible",
+  "confidence": "haute|moyenne|faible",
+  "human_validation": "oui|non",
   "reply": "..."
 }
 
 Règles :
-- Commence toujours par "Bonjour chère cliente,"
+- La réponse "reply" doit toujours commencer par "Bonjour chère cliente,"
 - Ton professionnel SAV
-- Réponse courte et claire
-- Si info manquante → demande simplement
-- Ne mets AUCUN texte en dehors du JSON
+- Réponse courte, claire et exploitable
+- Ne jamais inventer une politique commerciale ou logistique
+- Si des informations manquent, demander seulement les éléments nécessaires
+- Si le cas est ambigu, risqué ou sensible, mettre "human_validation": "oui"
+- Ne mets aucun texte hors du JSON
+
+Sujet :
+${subject || ""}
 
 Message cliente :
-${description}
+${description || ""}
+
+Instruction complémentaire :
+${instruction || ""}
 `;
 
   try {
@@ -60,9 +68,10 @@ ${description}
     });
 
     const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content || "";
+    const content = data?.choices?.[0]?.message?.content?.trim() || "";
 
     let parsed;
+
     try {
       parsed = JSON.parse(content);
     } catch {
@@ -70,7 +79,7 @@ ${description}
         difficulty: "moyen",
         confidence: "moyenne",
         human_validation: "non",
-        reply: content
+        reply: content || "Bonjour chère cliente, nous vous remercions pour votre message. Afin de pouvoir vous apporter une réponse adaptée, pourriez-vous nous transmettre plus de précisions concernant votre demande ?"
       };
     }
 
@@ -80,7 +89,7 @@ ${description}
       difficulty: "sensible",
       confidence: "faible",
       human_validation: "oui",
-      reply: "Erreur technique lors de la génération."
+      reply: "Bonjour chère cliente, nous rencontrons actuellement une difficulté technique. Nous vous invitons à réessayer dans quelques instants."
     });
   }
 });
