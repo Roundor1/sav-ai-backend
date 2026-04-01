@@ -27,45 +27,27 @@ Format obligatoire :
   "reply": "..."
 }
 
-Règles générales :
-- "reply" doit toujours commencer par "Bonjour chère cliente,"
-- ton professionnel SAV Elyamaje
-- réponse courte, claire, exploitable
+Règles :
+- commencer par "Bonjour chère cliente,"
+- ton pro SAV Elyamaje
+- réponse courte, claire
 - ne jamais mettre de texte en gras
-- ne jamais inventer une politique commerciale ou logistique
-- si des informations manquent, demander seulement les éléments nécessaires
-- si le cas est ambigu, conflictuel ou sensible, mettre "human_validation": "oui"
+- ne jamais inventer
+- demander uniquement le nécessaire
 
-Cas SAV à reconnaître :
+Cas SAV :
 
-1. Décollement base / base qui ne tient pas / base qui se décolle
-Réponse attendue :
-- demander le protocole de pose
-- demander une photo du numéro de lot visible sous le produit
-- demander la facture d'achat
-- demander des photos du problème
+Décollement :
+→ demander protocole + lot + facture + photos
 
-2. Colis non reçu / livraison bloquée / colis perdu / aucun suivi
-Réponse attendue :
-- indiquer qu'une réclamation ou enquête transporteur doit être ouverte
-- ton rassurant
-- ne pas demander des éléments inutiles
+Colis non reçu :
+→ dire qu'une enquête transporteur est ouverte
 
-3. Produit défectueux / article abîmé / casse / problème produit
-Réponse attendue :
-- demander une photo ou vidéo du problème
-- demander la facture
-- demander si besoin le numéro de lot
+Produit défectueux :
+→ demander preuve + facture + photo
 
-4. Problème de couleur / teinte différente / ancienne et nouvelle formule
-Réponse attendue :
-- expliquer qu'une évolution de formule peut entraîner une légère variation de teinte
-- rester concise
-- ne pas promettre un rendu identique si ce n'est pas certain
-
-5. Cas non reconnu
-Réponse attendue :
-- demander poliment les précisions minimales utiles
+Problème couleur :
+→ expliquer variation formule
 
 Sujet :
 ${subject || ""}
@@ -73,7 +55,7 @@ ${subject || ""}
 Message cliente :
 ${description || ""}
 
-Instruction complémentaire :
+Instruction :
 ${instruction || ""}
 `;
 
@@ -83,14 +65,8 @@ ${instruction || ""}
       {
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content: "Tu es une assistante interne experte en rédaction SAV."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
+          { role: "system", content: "Assistant SAV" },
+          { role: "user", content: prompt }
         ],
         temperature: 0.2
       },
@@ -102,7 +78,7 @@ ${instruction || ""}
       }
     );
 
-    const content = response.data?.choices?.[0]?.message?.content?.trim() || "";
+    const content = response.data.choices[0].message.content;
 
     let parsed;
 
@@ -113,28 +89,21 @@ ${instruction || ""}
         difficulty: "moyen",
         confidence: "moyenne",
         human_validation: "non",
-        reply:
-          content ||
-          "Bonjour chère cliente, nous vous remercions pour votre message. Afin de pouvoir vous apporter une réponse adaptée, pourriez-vous nous transmettre plus de précisions concernant votre demande ?"
+        reply: content
       };
     }
 
-    return res.json(parsed);
+    res.json(parsed);
   } catch (error) {
-    console.log("Erreur OpenAI:", error.response?.data || error.message);
+    console.log(error.response?.data || error.message);
 
-    return res.status(500).json({
+    res.status(500).json({
       difficulty: "sensible",
       confidence: "faible",
       human_validation: "oui",
-      reply:
-        "Bonjour chère cliente, nous rencontrons actuellement une difficulté technique. Nous vous invitons à réessayer dans quelques instants."
+      reply: "Erreur IA."
     });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+app.listen(3000, () => console.log("Server running"));
