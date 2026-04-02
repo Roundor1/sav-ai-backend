@@ -60,7 +60,7 @@ app.post("/generate", async (req, res) => {
     const { subject = "", description = "", history = [] } = req.body;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.3",
+      model: "gpt-4o",
       temperature: 0.2,
       messages: [
         { role: "system", content: systemPrompt },
