@@ -38,7 +38,7 @@ FINITION :
 - dire appliquer une fine couche de base avant le top coat
 
 COULEUR :
-- variation normale liée à la formule (HEMA)
+- variation normale liée à la formule
 
 LIVRAISON :
 - dire indépendant de notre volonté
@@ -52,7 +52,7 @@ Tu ne dois jamais répéter une question déjà posée dans la conversation.
 `;
 
 app.get("/", (req, res) => {
-  res.send("SAV IA actif");
+  res.send("SAV AI actif");
 });
 
 app.post("/generate", async (req, res) => {
@@ -64,18 +64,13 @@ app.post("/generate", async (req, res) => {
       temperature: 0.2,
       messages: [
         { role: "system", content: systemPrompt },
-
-        // Historique (important pour éviter répétition)
         ...history,
-
         {
           role: "user",
-          content: `
-Sujet: ${subject}
+          content: `Sujet: ${subject}
 
 Message client:
-${description}
-`
+${description}`
         }
       ],
     });
@@ -83,13 +78,17 @@ ${description}
     res.json({
       reply: completion.choices[0].message.content
     });
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("ERREUR OPENAI :", error);
+    res.status(500).json({
+      error: "Erreur serveur",
+      details: error.message
+    });
   }
 });
 
-app.listen(3000, () => {
-  console.log("Serveur lancé sur le port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Serveur lancé sur le port ${PORT}`);
 });
