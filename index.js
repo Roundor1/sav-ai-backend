@@ -160,7 +160,7 @@ app.post("/generate", async (req, res) => {
 Message client :
 ${description}`
         }
-      ],
+      ]
     });
 
     res.json({
@@ -178,5 +178,5 @@ ${description}`
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(\`Serveur lancé sur le port \${PORT}\`);
+  console.log(`Serveur lancé sur le port ${PORT}`);
 });
