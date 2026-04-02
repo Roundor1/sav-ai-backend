@@ -78,7 +78,7 @@ Très important :
 
 Si la cliente a déjà envoyé les éléments demandés, il faut répondre dans l’idée suivante :
 la remercier pour les éléments transmis,
-indiquer que des tests sont actuellement en cours sur le lot concerné afin d’approfondir l’analyse,
+indiquer que des tests sont actuellement en cours sur le lot concerné afin d’approfondir notre analyse,
 indiquer qu’une solution adaptée lui sera apportée dès que possible.
 
 2. FINITION / TOP COAT / CHROME
@@ -158,7 +158,7 @@ Format final obligatoire :
 `;
 
 app.get("/", (req, res) => {
-  res.send("SAV IA actif");
+  res.send("SAV AI actif");
 });
 
 app.post("/generate", async (req, res) => {
@@ -196,5 +196,5 @@ ${description}`
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(\`Serveur lancé sur le port \${PORT}\`);
+  console.log(`Serveur lancé sur le port ${PORT}`);
 });
