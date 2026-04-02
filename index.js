@@ -58,6 +58,18 @@ RÈGLES GÉNÉRALES :
 - nouvelle adresse
 - numéro de série
 
+RÈGLE HUMAINE DE VÉRIFICATION TRÈS IMPORTANTE :
+Pour les bases et les gels, même si la cliente mentionne directement un numéro de lot concerné dans son message, il faut toujours demander :
+- la facture d’achat si elle n’a pas encore été transmise
+- une photo claire du numéro de lot si elle n’a pas encore été transmise
+
+Le fait que la cliente écrive simplement le numéro de lot dans son message ne suffit pas.
+Une vérification humaine reste nécessaire.
+Donc :
+- ne jamais considérer qu’un simple numéro écrit dans le message remplace la photo du numéro de lot
+- ne jamais considérer qu’un lot écrit dans le message remplace la facture d’achat
+- cette règle s’applique particulièrement aux bases et aux gels
+
 LOTS BASE CONCERNÉS À CONNAÎTRE :
 Base Solid en pot 20ml :
 070325
@@ -127,9 +139,10 @@ Toujours écrire "photo claire du numéro de lot situé sous la base concernée"
 
 Si le message contient déjà un numéro de lot de base concerné parmi la liste connue :
 - reconnaître que le lot fait partie des lots concernés
-- si la facture n’a pas encore été fournie, la demander
-- si la facture est déjà fournie ou indiquée comme fournie, ne pas la redemander
-- utiliser une réponse proche de la logique macro Elyamaje : expliquer que des tests internes ont montré que la formulation sans HEMA n’était pas satisfaisante, que la commercialisation a été suspendue temporairement, et qu’un avoir pourra être envoyé si le dossier correspond au lot concerné
+- mais toujours demander la facture d’achat si elle n’a pas encore été fournie
+- et toujours demander une photo claire du numéro de lot si elle n’a pas encore été fournie
+- le fait que le numéro soit écrit dans le message ne suffit pas
+- utiliser une réponse proche de la logique macro Elyamaje : expliquer que des tests internes ont montré que la formulation sans HEMA n’était pas satisfaisante, que la commercialisation a été suspendue temporairement, et qu’une prise en charge adaptée pourra être étudiée après vérification du dossier
 - rester professionnelle et claire
 - ne pas écrire "produit défectueux" de façon brutale
 - privilégier la formulation "lot concerné" ou "lots concernés"
@@ -190,18 +203,22 @@ Alors adapter la réponse :
 
 - Pour 070325, 072625 et 082925 :
 indiquer que le numéro de lot transmis fait partie des lots concernés,
-et demander uniquement les éléments manquants utiles au dossier si besoin.
+mais toujours demander la facture d’achat si elle n’a pas encore été fournie,
+et toujours demander une photo claire du numéro de lot si elle n’a pas encore été fournie,
+puis demander seulement les autres éléments utiles manquants.
 
 - Pour 060325 :
 indiquer qu’il s’agit d’un cas particulier,
 demander une photo claire de la liste d’ingrédients au dos du gel,
 expliquer que cette vérification permet de distinguer les références concernées,
+demander la facture d’achat si elle n’a pas encore été fournie,
+demander une photo claire du numéro de lot si elle n’a pas encore été fournie,
 et demander aussi si nécessaire une photo ou vidéo claire de la texture ou un exemple du jaunissement.
 
 Si la cliente dit directement que son gel est défectueux et donne un lot concerné :
 ne pas repartir sur une réponse générique,
 adapter immédiatement la réponse au lot concerné,
-et demander seulement ce qui manque encore.
+mais toujours conserver la vérification humaine avec facture d’achat et photo claire du numéro de lot si ces éléments ne sont pas déjà fournis.
 
 3. FINITION / TOP COAT / TOP SHINE / TOP GLOSS
 
@@ -392,9 +409,9 @@ FORMAT FINAL OBLIGATOIRE :
 
 function buildUserMessage(subject, description, instruction) {
   return (
-    "Sujet: " + (subject || "") + "\n\n" +
-    "Message client :\n" + (description || "") + "\n\n" +
-    "Instruction complémentaire :\n" + (instruction || "")
+    "Sujet: " + (subject || "") + "\\n\\n" +
+    "Message client :\\n" + (description || "") + "\\n\\n" +
+    "Instruction complémentaire :\\n" + (instruction || "")
   );
 }
 
